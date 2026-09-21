@@ -4,14 +4,14 @@ const app = express();
 const PORT = 3000;
 const BASE_URL = 'https://fakestoreapi.com';
 
-// Middlewares
+// aca cargo los middlewares
 app.use(express.json());
 app.use(express.static('public'));
 
-// Array en memoria para simular persistencia
+// aca me guardo la lista en memoria
 let localProducts = [];
 
-// Cargar datos iniciales de FakeStoreAPI al arrancar el servidor
+// aca traigo los datos de la api al arrancar
 async function initData() {
     try {
         const response = await fetch(`${BASE_URL}/products`);
@@ -23,12 +23,12 @@ async function initData() {
 }
 initData();
 
-// 1. Ruta GET para obtener todos los productos
+// aca devuelvo todos los productos
 app.get('/api/products', (req, res) => {
     res.json(localProducts);
 });
 
-// 2. Ruta POST para crear un nuevo producto
+// aca creo un producto nuevo
 app.post('/api/products', (req, res) => {
     const { title, price, category } = req.body;
 
@@ -36,7 +36,7 @@ app.post('/api/products', (req, res) => {
         return res.status(400).json({ error: 'Faltan datos obligatorios' });
     }
 
-    // Generar nuevo ID autoincremental
+    // aca genero el id que sigue
     const nextId = localProducts.length > 0
         ? Math.max(...localProducts.map(p => p.id)) + 1
         : 1;
@@ -54,7 +54,7 @@ app.post('/api/products', (req, res) => {
     res.json(newProduct);
 });
 
-// 3. Ruta DELETE para eliminar un producto por su ID
+// aca borro un producto por id
 app.delete('/api/products/:id', (req, res) => {
     const idParam = parseInt(req.params.id);
     const productIndex = localProducts.findIndex(p => p.id === idParam);
@@ -67,7 +67,7 @@ app.delete('/api/products/:id', (req, res) => {
     res.json({ message: 'Producto eliminado exitosamente', data: deletedProduct });
 });
 
-// Iniciar servidor
+// aca levanto el servidor
 app.listen(PORT, () => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
 });
