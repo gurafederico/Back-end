@@ -23,7 +23,7 @@ async function programaPrincipal() {
 
                         console.log('📦 Producto encontrado:');
 
-                        // Mapeamos a español para que console.table los muestre bien
+                        // mapeo para que console.table los muestre bien con mis columnas
                         const productoFormateado = {
                             id: data.id,
                             Nombre: data.title,
@@ -33,7 +33,7 @@ async function programaPrincipal() {
 
                         console.table([productoFormateado]);
                     } else {
-                        console.log('❌ Comando inválido. Uso: products/<productId>');
+                        console.log('❌ Comando invalido. Uso: products/<productId>');
                     }
                 }
                 // get products (consulta todos)
@@ -88,14 +88,14 @@ async function programaPrincipal() {
                         console.log(`🗑️ Producto ${id} eliminado:`);
                         console.table([data], ['id', 'title', 'price', 'category']);
                     } else {
-                        console.log('❌ Comando inválido.');
+                        console.log('❌ Comando invalido.');
                     }
                 }
                 break;
             }
 
             default:
-                console.log('❌ Método no soportado. Usa GET, POST o DELETE.');
+                console.log('❌ Metodo no soportado. Usa GET, POST o DELETE.');
         }
     } catch (error) {
         console.error('⚠️ Error al procesar la solicitud:', error.message);
