@@ -1,73 +1,105 @@
-import express from 'express';
-
-const app = express();
-const PORT = 3000;
 const BASE_URL = 'https://fakestoreapi.com';
 
-// aca cargo los middlewares
-app.use(express.json());
-app.use(express.static('public'));
+// capturo los argumentos que vienen despues de npm run start
+const args = process.argv.slice(2);
+const [metodo, recurso, ...resto] = args;
 
-// aca me guardo la lista en memoria
-let localProducts = [];
+async function programaPrincipal() {
+    if (!metodo || !recurso) {
+        console.log('❌ Error: Faltan argumentos.');
+        return;
+    }
 
-// aca traigo los datos de la api al arrancar
-async function initData() {
     try {
-        const response = await fetch(`${BASE_URL}/products`);
-        localProducts = await response.json();
-        console.log('📦 Productos iniciales cargados desde FakeStoreAPI');
+        switch (metodo.toUpperCase()) {
+            case 'GET': {
+                // get products (consulta por id)
+                if (recurso.includes('/')) {
+                    const [entidad, id] = recurso.split('/');
+                    if (entidad === 'products' && id) {
+                        const res = await fetch(`${BASE_URL}/products/${id}`);
+                        if (!res.ok) throw new Error(`Producto ${id} no encontrado`);
+                        const data = await res.json();
+
+                        console.log('📦 Producto encontrado:');
+
+                        // Mapeamos a español para que console.table los muestre bien
+                        const productoFormateado = {
+                            id: data.id,
+                            Nombre: data.title,
+                            'Precio $': data.price,
+                            Categoria: data.category
+                        };
+
+                        console.table([productoFormateado]);
+                    } else {
+                        console.log('❌ Comando inválido. Uso: products/<productId>');
+                    }
+                }
+                // get products (consulta todos)
+                else if (recurso === 'products') {
+                    const res = await fetch(`${BASE_URL}/products`);
+                    const data = await res.json();
+                    console.log('📦 Lista completa de productos:');
+                    console.table(data, ['id', 'title', 'price', 'category']);
+                }
+                break;
+            }
+
+            case 'POST': {
+                // post products con argumentos <title> <price> <category>
+                if (recurso === 'products') {
+                    const [title, price, category] = resto;
+
+                    // validacion de los argumentos
+                    if (!title || !price || !category) {
+                        console.log('❌ Error: Faltan argumentos "nombre" "precio" "categoria"');
+                        return;
+                    }
+
+                    const res = await fetch(`${BASE_URL}/products`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            title,
+                            price: parseFloat(price),
+                            category,
+                            description: 'Producto agregado desde CLI',
+                            image: 'https://i.pravatar.cc'
+                        })
+                    });
+
+                    const data = await res.json();
+                    console.log('✅ Producto creado exitosamente:');
+                    console.table([data], ['id', 'title', 'price', 'category']);
+                }
+                break;
+            }
+
+            case 'DELETE': {
+                // delete productos
+                if (recurso.includes('/')) {
+                    const [entidad, id] = recurso.split('/');
+                    if (entidad === 'products' && id) {
+                        const res = await fetch(`${BASE_URL}/products/${id}`, {
+                            method: 'DELETE'
+                        });
+                        const data = await res.json();
+                        console.log(`🗑️ Producto ${id} eliminado:`);
+                        console.table([data], ['id', 'title', 'price', 'category']);
+                    } else {
+                        console.log('❌ Comando inválido.');
+                    }
+                }
+                break;
+            }
+
+            default:
+                console.log('❌ Método no soportado. Usa GET, POST o DELETE.');
+        }
     } catch (error) {
-        console.error('Error al obtener datos iniciales:', error.message);
+        console.error('⚠️ Error al procesar la solicitud:', error.message);
     }
 }
-initData();
 
-// aca devuelvo todos los productos
-app.get('/api/products', (req, res) => {
-    res.json(localProducts);
-});
-
-// aca creo un producto nuevo
-app.post('/api/products', (req, res) => {
-    const { title, price, category } = req.body;
-
-    if (!title || !price || !category) {
-        return res.status(400).json({ error: 'Faltan datos obligatorios' });
-    }
-
-    // aca genero el id que sigue
-    const nextId = localProducts.length > 0
-        ? Math.max(...localProducts.map(p => p.id)) + 1
-        : 1;
-
-    const newProduct = {
-        id: nextId,
-        title,
-        price: parseFloat(price),
-        category,
-        description: 'Producto agregado desde localhost',
-        image: 'https://i.pravatar.cc'
-    };
-
-    localProducts.push(newProduct);
-    res.json(newProduct);
-});
-
-// aca borro un producto por id
-app.delete('/api/products/:id', (req, res) => {
-    const idParam = parseInt(req.params.id);
-    const productIndex = localProducts.findIndex(p => p.id === idParam);
-
-    if (productIndex === -1) {
-        return res.status(404).json({ error: 'Producto no encontrado' });
-    }
-
-    const deletedProduct = localProducts.splice(productIndex, 1)[0];
-    res.json({ message: 'Producto eliminado exitosamente', data: deletedProduct });
-});
-
-// aca levanto el servidor
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
-});
+programaPrincipal();
