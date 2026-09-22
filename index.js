@@ -1,4 +1,4 @@
-const BASE_URL = 'https://fakestoreapi.com';
+const API_URL = 'https://fakestoreapi.com';
 
 // capturo los argumentos que vienen despues de npm run start
 const args = process.argv.slice(2);
@@ -17,7 +17,7 @@ async function programaPrincipal() {
                 if (recurso.includes('/')) {
                     const [entidad, id] = recurso.split('/');
                     if (entidad === 'products' && id) {
-                        const res = await fetch(`${BASE_URL}/products/${id}`);
+                        const res = await fetch(`${API_URL}/products/${id}`);
                         if (!res.ok) throw new Error(`Producto ${id} no encontrado`);
                         const data = await res.json();
 
@@ -38,7 +38,7 @@ async function programaPrincipal() {
                 }
                 // get products (consulta todos)
                 else if (recurso === 'products') {
-                    const res = await fetch(`${BASE_URL}/products`);
+                    const res = await fetch(`${API_URL}/products`);
                     const data = await res.json();
                     console.log('📦 Lista completa de productos:');
                     console.table(data, ['id', 'title', 'price', 'category']);
@@ -57,7 +57,7 @@ async function programaPrincipal() {
                         return;
                     }
 
-                    const res = await fetch(`${BASE_URL}/products`, {
+                    const res = await fetch(`${API_URL}/products`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -81,7 +81,7 @@ async function programaPrincipal() {
                 if (recurso.includes('/')) {
                     const [entidad, id] = recurso.split('/');
                     if (entidad === 'products' && id) {
-                        const res = await fetch(`${BASE_URL}/products/${id}`, {
+                        const res = await fetch(`${API_URL}/products/${id}`, {
                             method: 'DELETE'
                         });
                         const data = await res.json();
