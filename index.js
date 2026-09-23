@@ -33,7 +33,7 @@ async function programaPrincipal() {
 
                         console.table([productoFormateado]);
                     } else {
-                        console.log('❌ Comando invalido. Uso: products/<productId>');
+                        console.log('❌ Comando no valido. Uso: products/<productId>');
                     }
                 }
                 // get products (consulta todos)
@@ -64,8 +64,7 @@ async function programaPrincipal() {
                             title,
                             price: parseFloat(price),
                             category,
-                            description: 'Producto agregado desde CLI',
-                            image: 'https://i.pravatar.cc'
+                            description: 'Producto agregado desde consola',
                         })
                     });
 
