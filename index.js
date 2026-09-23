@@ -1,3 +1,4 @@
+console.log("Iniciando el script...")
 const API_URL = 'https://fakestoreapi.com';
 
 // capturo los argumentos que vienen despues de npm run start
